@@ -12,7 +12,7 @@ test('234567812345678 is invalid', () => {
   expect(isAValidCreditCard('234567812345678')).toBe(false);
 });
 test('1234567812345670 is valid', () => {
-  expect(isAValidCreditCard('121234567812345670')).toBe(true);
+  expect(isAValidCreditCard('1234567812345670')).toBe(true);
 });
 test('2222405343248877 is valid', () => {
   expect(isAValidCreditCard('2222405343248877')).toBe(true);
