@@ -1,4 +1,4 @@
-const { isAValidCreditCard } = require('./validator');
+const { isAValidCreditCard } = require('..src/validator');
 
 test('49927398716 is valid', () => {
   expect(isAValidCreditCard('49927398716')).toBe(true);
