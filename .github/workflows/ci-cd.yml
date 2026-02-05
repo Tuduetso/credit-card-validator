@@ -23,7 +23,11 @@ jobs:
 
       # 3️⃣ Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+      
+      # fixing my perrmission error
+      - name: Fix Jest permissions (Linux CI)
+        run: chmod +x node_modules/.bin/jest
 
       # 4️⃣ Run unit tests (Jest)
       - name: Run unit tests
