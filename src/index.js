@@ -15,7 +15,7 @@ app.get('/validate', (req, res) => {
   if (!cardNumber || !/^\d+$/.test(cardNumber)) {
     return res.status(400).json({
       valid: false,
-      message: 'Please enter a numeric credit card number'
+      message: 'Please enter a numeric credit card number '
     });
   }
 
