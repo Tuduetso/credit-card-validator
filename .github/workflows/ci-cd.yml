@@ -1,0 +1,59 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️⃣ Checkout the repo
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2️⃣ Set up Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    # 3️⃣ Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # 4️⃣ Run unit tests
+    - name: Run tests
+      run: npm test
+
+    # 5️⃣ Log in to AWS ECR
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    # 6️⃣ Build Docker image
+    - name: Build Docker image
+      run: |
+        docker build -t credit-card-validator .
+
+    # 7️⃣ Tag and push Docker image
+    - name: Push Docker image to ECR
+      run: |
+        IMAGE_URI=816131439540.dkr.ecr.us-east-1.amazonaws.com/credit-card-validator:latest
+        docker tag credit-card-validator:latest $IMAGE_URI
+        docker push $IMAGE_URI
+
+    # 8️⃣ Deploy to AWS App Runner
+    - name: Deploy to App Runner
+      run: |
+        aws apprunner create-deployment \
+          --service-arn arn:aws:apprunner:us-east-1:############:service/credit-card-validator
