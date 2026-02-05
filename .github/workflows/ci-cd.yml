@@ -27,7 +27,7 @@ jobs:
 
       # 4️⃣ Run unit tests (Jest)
       - name: Run unit tests
-        run: npx jest --ci --runInBand
+        run: npm test
 
       # 5️⃣ Configure AWS credentials
       - name: Configure AWS credentials
