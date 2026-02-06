@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,37 +24,30 @@ jobs:
       # 3️⃣ Install dependencies
       - name: Install dependencies
         run: npm ci
-      
-      # fixing my perrmission error
-      - name: Fix Jest permissions (Linux CI)
+
+      # 4️⃣ Fix Jest permissions (Linux CI)
+      - name: Fix Jest permissions
         run: chmod +x node_modules/.bin/jest
 
-      # 4️⃣ Run unit tests (Jest)
+      # 5️⃣ Run unit tests (Jest)
       - name: Run unit tests
         run: npm test
 
-      # 5️⃣ Configure AWS credentials
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      # 6️⃣ Login to Amazon ECR
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
-
-      # 7️⃣ Build Docker image
+      # 6️⃣ Build Docker image
       - name: Build Docker image
-        run: |
-          docker build -t credit-card-validator .
+        run: docker build -t credit-card-validator:latest .
 
-      # 8️⃣ Tag & push Docker image to ECR
-      - name: Push Docker image to ECR
-        run: |
-          docker tag credit-card-validator:latest \
-          816131439540.dkr.ecr.us-east-1.amazonaws.com/credit-card-validator:latest
+      # 7️⃣ Deploy to EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.EC2_HOST }}       # EC2 public IP
+          username: ${{ secrets.EC2_USER }}   # usually ec2-user
+          key: ${{ secrets.EC2_KEY }}         # private key contents (.pem)
+          script: |
+            # Stop old container if exists
+            docker stop credit-card-validator || true
+            docker rm credit-card-validator || true
 
-          docker push \
-          816131439540.dkr.ecr.us-east-1.amazonaws.com/credit-card-validator:latest
+            # Run new container
+            docker run -d -p 80:3000 --name credit-card-validator credit-card-validator:latest
