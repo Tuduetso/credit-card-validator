@@ -43,7 +43,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}       # EC2 public IP
           username: ${{ secrets.EC2_USER }}   # usually ec2-user
-          key: ${{ secrets.EC2_KEY }}         # private key contents (.pem)
+          key: ${{ secrets.EC2_KEY }}         
           script: |
             # Stop old container if exists
             docker stop credit-card-validator || true
